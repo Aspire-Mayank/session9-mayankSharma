@@ -1,12 +1,16 @@
-## Assingment Decorators
+import math
+import operator
+import random
+from html import escape
+from decimal import Decimal
+import time
+from functools import singledispatch, wraps
+from datetime import datetime, timezone
+from time import perf_counter
+from numbers import Integral
 
-> A **decorator** in **Python** is any callable **Python** object that is used to modify a function or a class. This assignment is about implementing various simple decorators to accomplish tiny features in our functions.
+#1. Odds Seconds
 
-### Allows a function to run only on odd seconds
-
-> A simple decorator to make the function return the output only if the current time has seconds numeric as an odd digit.
-
-```python
 def odd_sec(fn) -> "Function":
     """
     This is a closure function
@@ -24,13 +28,9 @@ def odd_sec(fn) -> "Function":
         if CURR_TIME.second % 2 != 0:
             return fn(*args, **kwargs)
     return inner
-```
 
-### Debugger :
+#2 Logger 
 
-> A decorator to print the logs of a function, the start time of execution, end time, running time. Also, whether the function returns something, it's docs. The decorator adds these functionality for us.
-
-```python
 def debugger(func) -> "Function":
     """
     This is a decorator which adds logging to an exisitng function
@@ -47,13 +47,10 @@ def debugger(func) -> "Function":
         print(f'{fn.__name__} took {end_time -start_time} seconds to complete')
         return output
     return inner
-```
 
-### Authenticate
 
-> Decorator to implement simple authentication functionality and give that to any function of our choice. The user can make use of a closure to provide the current password. It has to match with the default user password provided beforehand.
+#3 Authentication : Credentials
 
-```python
 def set_sign_on() -> "Function":
     """
     This is a decorator which adds authentication using a stored password
@@ -66,6 +63,7 @@ def set_sign_on() -> "Function":
         return auth
     return inner
 
+current_auth = set_sign_on()
 
 def try_certificate_auth(current_pass: str, user_pass: str):
     """
@@ -86,13 +84,9 @@ def try_certificate_auth(current_pass: str, user_pass: str):
         return inner
 
     return decor
-```
 
-### Average time
+#4 AVG times
 
-> A decorator factory, that takes in an integer, defining the number of iteration of which a function's runtime has to be calculated and average is calculated. It returns a decorator.
-
-```python
 def dec_timeavg(reps:int):
     '''
     This is a function takes integer as an input and runs the functions of reps number of time.
@@ -119,13 +113,9 @@ def dec_timeavg(reps:int):
         return inner
     return avgtime
 
-```
 
-### Privilege
+#5 Privileges Access
 
-> Decorator that provides privilege access. A function can have four parameters and based on the privileges (high, mid, low, no), access is given to all 4, 3, 2 or 1 parameters.
-
-```python
 class Firewall:
     """
     This decorator class  wraps any function with certain privileges which
@@ -160,13 +150,32 @@ class Firewall:
             elif self.privilege == "no":
                 return fn(base)
         return inner
-```
 
-### Single dispatch
+#6 htmlize code using inbuild singledispatch
 
-> Writing HTMLize code using `singledispatch`, available as a built-in decorator in `functools` module. Also the idea is to add functionality using monkey patching and not make every thing hard coded.
+def html_escape(arg):
+    return escape(str(arg))
 
-```python
+def html_int(a):
+    return f'{a}(<i>{str(hex(a))}</i>)'
+
+def html_real(a):
+    return f'{round(a, 2)}'
+
+def html_str(s):
+    return html_escape(s).replace('\n', '<br/>\n')
+
+def html_list(l):
+    items = (f'<li>{html_escape(item)}</li>' for item in l)
+    return '<ul>\n' + '\n'.join(items) + '\n</ul>'
+
+def html_dict(d):
+    items = (f'<li>{k}={v}</li>' for k, v in d.items())
+    return '<ul>\n' + '\n'.join(items) + '\n</ul>'
+
+def html_set(arg):
+    return html_list(arg)
+
 @singledispatch
 def htmlize(arg):
     if isinstance(arg, int):
@@ -196,34 +205,3 @@ def htmlize(arg):
 
     else:
         return html_escape(arg)
-```
-
-```
-def html_escape(arg):
-    return escape(str(arg))
-
-def html_int(a):
-    return f'{a}(<i>{str(hex(a))}</i>)'
-
-def html_real(a):
-    return f'{round(a, 2)}'
-
-def html_str(s):
-    return html_escape(s).replace('\n', '<br/>\n')
-
-def html_list(l):
-    items = (f'<li>{html_escape(item)}</li>' for item in l)
-    return '<ul>\n' + '\n'.join(items) + '\n</ul>'
-
-def html_dict(d):
-    items = (f'<li>{k}={v}</li>' for k, v in d.items())
-    return '<ul>\n' + '\n'.join(items) + '\n</ul>'
-
-def html_set(arg):
-    return html_list(arg)
-```
-After this, functions to handle other types are added one by one, available in the code.
-
-## Test Case Performance
-
-![](result.png)
